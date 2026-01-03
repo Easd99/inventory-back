@@ -1,0 +1,32 @@
+services: 
+  inventory_back:
+    container_name: inventory_back
+    build: ./
+    restart: always
+    depends_on:
+      - postgres_db
+    env_file:
+      - .docker.env
+    ports:
+      - "5000:5000"
+    networks:
+      - default
+    command: >
+      /bin/sh -c "npm run typeorm:run && npm run start:prod"
+
+  postgres_db:
+    env_file:
+      - .docker.env
+    container_name: postgres_db
+    image: postgres
+    ports:
+      - "4561:5432"
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+    volumes:
+      - ./postgres_data:/var/lib/postgresql
+networks:
+  default:
+    driver: bridge

@@ -1,0 +1,45 @@
+# Node modules and package caches
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Env files (do not ship secrets)
+.env
+.env.*
+!.env.example
+
+# Build output
+dist
+build
+coverage
+out
+tmp
+temp
+logs
+*.log
+
+# Editor/IDE
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Git, CI, and misc
+.git
+.gitignore
+*.tgz
+
+# Next/React/Vite specific (if present)
+.next
+.cache
+.vite
+
+# Other local artifacts
+coverage/
+postgres_data/
