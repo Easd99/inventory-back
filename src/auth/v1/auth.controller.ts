@@ -28,7 +28,7 @@ export class AuthController {
     async getProfile(
         @Request() req
     ) {
-        return this.authService.profile(req.user.id); // Example userId
+        return this.authService.profile(req.user.id);
     }
 
 }

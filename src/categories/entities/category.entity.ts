@@ -1,5 +1,5 @@
-import { PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, Column, Entity, Index } from "typeorm";
-
+import { PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, Column, Entity, Index, OneToMany } from "typeorm";
+import { Product } from "../../products/entities/product.entity";
 
 @Entity('categories')
 @Index(['name'], { unique: true, where: '"deletedAt" IS NULL' })
@@ -32,5 +32,9 @@ export class Category {
 
     @DeleteDateColumn()
     deletedAt: Date | null;
+
+    //relations
+    @OneToMany(() => Product, product => product.category)
+    products?: Product[];
 
 }

@@ -7,6 +7,7 @@ import { AppDataSource } from './config/data-source';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { CategoriesModule } from './categories/categories.module';
+import { ProductsModule } from './products/products.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -29,7 +30,7 @@ import { CategoriesModule } from './categories/categories.module';
       return addTransactionalDataSource(new DataSource(option));
     },
   }),
-    UsersModule, AuthModule, CategoriesModule],
+    UsersModule, AuthModule, CategoriesModule, ProductsModule],
   controllers: [],
   providers: [],
 })
