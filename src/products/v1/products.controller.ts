@@ -3,7 +3,7 @@ import { ProductsService } from '../products.service';
 import { CreateProductDto } from '../dto/create-product.dto';
 import { UpdateProductDto, UpdateStockDto } from '../dto/update-product.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { FiltersProductDto } from '../dto/filters-product.dto';
+import { FiltersLowStockProductDto, FiltersProductDto } from '../dto/filters-product.dto';
 import { Product } from '../entities/product.entity';
 import { PaginatedProductResponseDto } from '../dto/paginated-product-response.dto';
 import { ApiBadRequestResponse, ApiBearerAuth, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
@@ -56,7 +56,8 @@ export class ProductsController {
   })
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(UserRole.ADMIN)
-  async lowStock(@Query() filters: FiltersProductDto) {
+  @ApiBearerAuth()
+  async lowStock(@Query() filters: FiltersLowStockProductDto) {
     const product = await this.productsService.findAll({
       threshold: filters.threshold
     });
@@ -69,6 +70,7 @@ export class ProductsController {
     type: [ProductResponseDto],
   })
   @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
   async myProducts(@Request() req) {
     const userId = req.user.id;
     const product = await this.productsService.findAll({

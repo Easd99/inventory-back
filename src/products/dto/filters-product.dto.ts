@@ -29,3 +29,13 @@ export class FiltersProductDto {
   @IsNumber()
   userId?: number;
 }
+
+export class FiltersLowStockProductDto {
+
+  @IsOptional()
+  @IsNumber()
+  threshold?: number = 10;
+
+}
+
+

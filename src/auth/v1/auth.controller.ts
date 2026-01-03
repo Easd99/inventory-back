@@ -59,6 +59,7 @@ export class AuthController {
     @Get('users')
     @Roles(UserRole.ADMIN)
     @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @ApiBearerAuth()
     async getUsers() {
         return this.authService.getAllUsers();
     }
@@ -66,6 +67,7 @@ export class AuthController {
     @Patch('users/:id/role')
     @Roles(UserRole.ADMIN)
     @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @ApiBearerAuth()
     async updateUserRole(@Param('id') id: string, @Body() input: UpdateUserRoleDto) {
         return this.authService.updateUserRole(+id, input);
     }
