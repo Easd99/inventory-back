@@ -1,7 +1,7 @@
 import { IsOptional, IsPositive, Min, IsString, IsArray, IsNumber } from 'class-validator';
 import { Type } from 'class-transformer';
 
-export class  FiltersProductDto {
+export class FiltersProductDto {
 
   @IsOptional()
   @IsNumber()
@@ -10,4 +10,14 @@ export class  FiltersProductDto {
   @IsOptional()
   @IsString()
   search?: string;
+
+  @IsOptional()
+  @IsPositive()
+  @Type(() => Number)
+  limit: number = 10;
+
+  @IsOptional()
+  @Min(0)
+  @Type(() => Number)
+  offset: number = 0;
 }

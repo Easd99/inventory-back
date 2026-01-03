@@ -55,8 +55,14 @@ export class ProductsService {
       'product.id': 'ASC',
     });
     queryBuilder.leftJoinAndSelect('product.category', 'category');
-    const products = await queryBuilder.getMany();
-    return products;
+    queryBuilder.skip(input.offset).take(input.limit);
+    const [products, total] = await queryBuilder.getManyAndCount();
+    return {
+      data: products,
+      total,
+      limit: input.limit,
+      offset: input.offset,
+    };
   }
 
   async findOne(id: number) {
