@@ -1,4 +1,4 @@
-import { IsNumber, IsPositive, IsString,  } from "class-validator";
+import { IsNumber, IsOptional, IsPositive, IsString,  } from "class-validator";
 
 export class CreateProductDto {
 
@@ -19,6 +19,5 @@ export class CreateProductDto {
     @IsNumber()
     @IsPositive()
     categoryId: number;
-
 }
 

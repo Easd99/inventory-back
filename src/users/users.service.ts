@@ -33,12 +33,12 @@ export class UsersService {
       hashedPassword = await bcrypt.hash(input.password, 10);
     }
 
-    const data = {
+    const user = await this.userRepository.save({
       name: input.name,
       email: input.email,
       password: hashedPassword,
-    }
-    const user = await this.userRepository.save(data);
+      role: input.role,
+    });
     user.password = undefined!;
     return user;
   }
@@ -73,6 +73,10 @@ export class UsersService {
 
     if (input.name) {
       user.name = input.name;
+    }
+
+    if(input.role) {
+      user.role = input.role;
     }
 
     if (input.email) {
@@ -120,6 +124,7 @@ export class UsersService {
         'id',
         'name',
         'email',
+        'role',
         'password',
         'createdAt',
         'updatedAt',

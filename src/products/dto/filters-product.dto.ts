@@ -14,10 +14,18 @@ export class FiltersProductDto {
   @IsOptional()
   @IsPositive()
   @Type(() => Number)
-  limit: number = 10;
+  limit?: number = 10;
 
   @IsOptional()
   @Min(0)
   @Type(() => Number)
-  offset: number = 0;
+  offset?: number = 0;
+
+  @IsOptional()
+  @IsNumber()
+  threshold?: number = 10;
+
+  @IsOptional()
+  @IsNumber()
+  userId?: number;
 }

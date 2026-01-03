@@ -1,16 +1,20 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, NotFoundException, UseGuards, Put, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, Request, NotFoundException, UseGuards, Put, Query, DefaultValuePipe, ParseIntPipe } from '@nestjs/common';
 import { ProductsService } from '../products.service';
 import { CreateProductDto } from '../dto/create-product.dto';
-import { UpdateProductDto } from '../dto/update-product.dto';
+import { UpdateProductDto, UpdateStockDto } from '../dto/update-product.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { FiltersProductDto } from '../dto/filters-product.dto';
 import { Product } from '../entities/product.entity';
 import { PaginatedProductResponseDto } from '../dto/paginated-product-response.dto';
 import { ApiBadRequestResponse, ApiBearerAuth, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { ProductResponseDto } from '../dto/product-response.dto';
-import { Error400ResponseDto } from 'src/common/dto/error-400-response.dto copy';
-import { Error404ResponseDto } from 'src/common/dto/error-404-response.dto';
-import { Error401ResponseDto } from 'src/common/dto/error-401-response.dto copy';
+import { Error400ResponseDto } from '../../common/dto/error-400-response.dto copy';
+import { Error404ResponseDto } from '../../common/dto/error-404-response.dto';
+import { Error401ResponseDto } from '../../common/dto/error-401-response.dto copy';
+import { ProductOwnershipGuard } from '../../auth/guards/product-ownership.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { UserRole } from 'src/users/enums/user-role.enum';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
 
 @Controller({ path: 'products', version: '1' })
 export class ProductsController {
@@ -31,8 +35,9 @@ export class ProductsController {
   @ApiBadRequestResponse({
     type: Error400ResponseDto
   })
-  create(@Body() input: CreateProductDto) {
-    return this.productsService.create(input);
+  create(@Body() input: CreateProductDto, @Request() req) {
+    const userId = req.user.id;
+    return this.productsService.create(input, userId);
   }
 
   @Get()
@@ -41,7 +46,35 @@ export class ProductsController {
     type: PaginatedProductResponseDto,
   })
   findAll(@Query() filters: FiltersProductDto) {
-    return this.productsService.findAll(filters);
+    return this.productsService.findAllPaginated(filters);
+  }
+
+  @Get('low-stock')
+  @ApiOkResponse({
+    description: 'get low stock products',
+    type: [ProductResponseDto],
+  })
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(UserRole.ADMIN)
+  async lowStock(@Query() filters: FiltersProductDto) {
+    const product = await this.productsService.findAll({
+      threshold: filters.threshold
+    });
+    return product;
+  }
+
+  @Get('my-products')
+  @ApiOkResponse({
+    description: 'get my products',
+    type: [ProductResponseDto],
+  })
+  @UseGuards(AuthGuard('jwt'))
+  async myProducts(@Request() req) {
+    const userId = req.user.id;
+    const product = await this.productsService.findAll({
+      userId: userId
+    });
+    return product;
   }
 
   @Get(':id')
@@ -56,8 +89,32 @@ export class ProductsController {
     return product;
   }
 
+
+  @Put(':id/stock')
+  @UseGuards(AuthGuard('jwt'), ProductOwnershipGuard)
+  @ApiBearerAuth()
+  @ApiOkResponse({
+    description: 'updated product stock',
+    type: ProductResponseDto,
+  })
+  @ApiBadRequestResponse({
+    type: Error400ResponseDto
+  })
+  @ApiNotFoundResponse({
+    type: Error404ResponseDto
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+    type: Error401ResponseDto
+  })
+  updateStock(@Param('id') id: string, @Body() input: UpdateStockDto) {
+    return this.productsService.update(+id, {
+      stock: input.stock
+    });
+  }
+
   @Put(':id')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), ProductOwnershipGuard)
   @ApiBearerAuth()
   @ApiOkResponse({
     description: 'updated product',
@@ -79,7 +136,7 @@ export class ProductsController {
 
   @Delete(':id')
   @HttpCode(204)
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), ProductOwnershipGuard)
   @ApiBearerAuth()
   @ApiNotFoundResponse({
     type: Error404ResponseDto
@@ -91,4 +148,6 @@ export class ProductsController {
   remove(@Param('id') id: string) {
     return this.productsService.remove(+id);
   }
+
+
 }

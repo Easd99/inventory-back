@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Transactional } from 'typeorm-transactional';
 import { CategoriesService } from "../categories/categories.service";
 import { FiltersProductDto } from './dto/filters-product.dto';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class ProductsService {
@@ -16,10 +17,11 @@ export class ProductsService {
     @InjectRepository(Product)
     private productsRepository: Repository<Product>,
     private readonly categoriesService: CategoriesService,
+    private readonly usersService: UsersService,
   ) { }
 
   @Transactional()
-  async create(input: CreateProductDto) {
+  async create(input: CreateProductDto, userId: number) {
 
     const existingProduct = await this.productsRepository.findOne({ where: { name: input.name } });
     if (existingProduct) {
@@ -31,17 +33,24 @@ export class ProductsService {
       throw new NotFoundException('category not found');
     }
 
+    const existingUser = await this.usersService.findOne(userId);
+    if (!existingUser) {
+      throw new NotFoundException('user not found');
+    }
+
+
     return await this.productsRepository.save({
       name: input.name,
       description: input.description,
       stock: input.stock,
       price: input.price,
       category: { id: existingCategory.id },
+      createdBy: { id: userId },
     });
 
   }
 
-  async findAll(input: FiltersProductDto) {
+  async findAllPaginated(input: FiltersProductDto) {
     const queryBuilder = this.productsRepository.createQueryBuilder('product');
 
     if (input.categoryId !== undefined) {
@@ -119,5 +128,26 @@ export class ProductsService {
     }
 
     await this.productsRepository.softRemove(product);
+  }
+
+  async findAll(input: FiltersProductDto) {
+    const queryBuilder = this.productsRepository.createQueryBuilder('product');
+
+    if (input.threshold !== undefined) {
+      queryBuilder.andWhere('product.stock < :threshold', { threshold: input.threshold });
+    }
+    if (input.userId !== undefined) {
+      queryBuilder.andWhere('product.createdById = :userId', { userId: input.userId });
+    }
+
+
+    queryBuilder.orderBy({
+      'product.id': 'ASC',
+    });
+    queryBuilder.leftJoinAndSelect('product.category', 'category');
+    queryBuilder.leftJoinAndSelect('product.createdBy', 'createdBy');
+
+    return await queryBuilder.getMany();
+
   }
 }

@@ -4,6 +4,7 @@ import * as bcrypt from 'bcryptjs';
 import { User } from 'src/users/entities/user.entity';
 import { RegisterDto } from './dto/register.dto';
 import { JwtService } from '@nestjs/jwt';
+import { UpdateUserDto } from 'src/users/dto/update-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -22,7 +23,7 @@ export class AuthService {
     }
 
     async login(user: Omit<User, 'password'>) {
-        const payload = { email: user.email, sub: user.id };
+        const payload = { email: user.email, sub: user.id, role: user.role };
         return {
             access_token: this.jwtService.sign(payload),
             user,
@@ -39,5 +40,15 @@ export class AuthService {
             throw new NotFoundException('user not found');
         }
         return user;
+    }
+
+    async getAllUsers() {
+        return this.usersService.findAll();
+    }
+
+    async updateUserRole(id: number, input: UpdateUserDto) {
+        return this.usersService.update(id, {
+            role: input.role
+        });
     }
 }

@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UnauthorizedException, Get, UseGuards, Request, HttpStatus, HttpCode } from '@nestjs/common';
+import { Controller, Post, Body, UnauthorizedException, Get, UseGuards, Request, HttpStatus, HttpCode, Patch, Param } from '@nestjs/common';
 import { AuthService } from '../auth.service';
 import { LoginDto } from '../dto/login.dto';
 import { RegisterDto } from '../dto/register.dto';
@@ -6,7 +6,11 @@ import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiBody, ApiBodyOptions, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { UserResponseDto } from '../dto/user-response.dto';
 import { LoginResponseDto } from '../dto/login-response.dto';
-import { Error401ResponseDto } from 'src/common/dto/error-401-response.dto copy';
+import { Error401ResponseDto } from '../../common/dto/error-401-response.dto copy';
+import { UserRole } from '../../users/enums/user-role.enum';
+import { Roles } from '../decorators/roles.decorator';
+import { RolesGuard } from '../guards/roles.guard';
+import { UpdateUserDto, UpdateUserRoleDto } from 'src/users/dto/update-user.dto';
 
 @Controller({ path: 'auth', version: '1' })
 export class AuthController {
@@ -35,7 +39,6 @@ export class AuthController {
     async register(@Body() input: RegisterDto) {
         return this.authService.register(input);
     }
-
     @Get('profile')
     @UseGuards(AuthGuard('jwt'))
     @ApiBearerAuth()
@@ -52,5 +55,20 @@ export class AuthController {
     ) {
         return this.authService.profile(req.user.id);
     }
+
+    @Get('users')
+    @Roles(UserRole.ADMIN)
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    async getUsers() {
+        return this.authService.getAllUsers();
+    }
+
+    @Patch('users/:id/role')
+    @Roles(UserRole.ADMIN)
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    async updateUserRole(@Param('id') id: string, @Body() input: UpdateUserRoleDto) {
+        return this.authService.updateUserRole(+id, input);
+    }
+
 
 }

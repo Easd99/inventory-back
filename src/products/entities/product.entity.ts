@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, Index, OneToMany, ManyToOne } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, Index, OneToMany, ManyToOne, JoinColumn } from "typeorm";
 import { Category } from "../../categories/entities/category.entity";
+import { User } from "../../users/entities/user.entity";
 
 @Entity('products')
 @Index(['name'], { unique: true, where: '"deletedAt" IS NULL' })
@@ -39,5 +40,9 @@ export class Product {
     //relations
     @ManyToOne(() => Category, x => x.products, { nullable: false, eager: true })
     category?: Category;
+
+    @ManyToOne(() => User, { eager: true })
+    @JoinColumn({ name: 'createdById' })
+    createdBy?: User;
 
 }
