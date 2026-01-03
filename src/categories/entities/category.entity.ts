@@ -10,7 +10,6 @@ export class Category {
 
     @Column({
         length: 100,
-        unique: true,
     })
     name: string;
 
@@ -23,6 +22,8 @@ export class Category {
         { default: true, type: 'boolean' }
     )
     active: boolean;
+
+    productsCount?: number;
 
     @CreateDateColumn()
     createdAt: Date;

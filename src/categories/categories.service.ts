@@ -78,9 +78,14 @@ export class CategoriesService {
   async remove(id: number): Promise<void> {
     const category = await this.categoryRepository.findOne({
       where: { id },
+      relations: ['products'],
     });
     if (!category) {
       throw new NotFoundException('category not found');
+    }
+
+    if (category.products && category.products.length > 0) {
+      throw new BadRequestException('cannot delete category with associated products');
     }
 
     await this.categoryRepository.softRemove(category);
