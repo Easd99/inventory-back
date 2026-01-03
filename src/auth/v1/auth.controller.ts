@@ -2,14 +2,21 @@ import { Controller, Post, Body, UnauthorizedException, Get, UseGuards, Request 
 import { AuthService } from '../auth.service';
 import { LoginDto } from '../dto/login.dto';
 import { RegisterDto } from '../dto/register.dto';
-import { UsersService } from 'src/users/users.service';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiBody, ApiBodyOptions, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { UserResponseDto } from '../dto/user-response.dto';
+import { LoginResponseDto } from '../dto/login-response.dto';
 
 @Controller({ path: 'auth', version: '1' })
 export class AuthController {
     constructor(private authService: AuthService) { }
 
     @Post('login')
+    @ApiOperation({ summary: 'User login' })
+    @ApiOkResponse({
+        description: 'login successful',
+        type: LoginResponseDto,
+    })
     async login(@Body() loginDto: LoginDto) {
         const user = await this.authService.validateUser(loginDto.email, loginDto.password);
         if (!user) {
@@ -19,12 +26,21 @@ export class AuthController {
     }
 
     @Post('register')
+    @ApiOkResponse({
+        description: 'created user',
+        type: UserResponseDto,
+    })
     async register(@Body() input: RegisterDto) {
         return this.authService.register(input);
     }
 
     @Get('profile')
     @UseGuards(AuthGuard('jwt'))
+    @ApiBearerAuth()
+    @ApiOkResponse({
+        description: 'profile info',
+        type: UserResponseDto,
+    })
     async getProfile(
         @Request() req
     ) {
