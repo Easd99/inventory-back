@@ -4,9 +4,12 @@ import { CreateCategoryDto } from '../dto/create-category.dto';
 import { UpdateCategoryDto } from '../dto/update-category.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { FiltersCategoryDto } from '../dto/filters-category.dto';
-import { ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiBearerAuth, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { CategoryResponseDto } from '../dto/category-response.dto';
 import { PaginatedCategoryResponseDto } from '../dto/paginated-category-response.dto';
+import { Error404ResponseDto } from 'src/common/dto/error-404-response.dto';
+import { Error400ResponseDto } from 'src/common/dto/error-400-response.dto copy';
+import { Error401ResponseDto } from 'src/common/dto/error-401-response.dto copy';
 
 @Controller({ path: 'categories', version: '1' })
 export class CategoriesController {
@@ -17,9 +20,16 @@ export class CategoriesController {
   @HttpCode(201)
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
-  @ApiOkResponse({
+  @ApiCreatedResponse({
     description: 'created category',
     type: CategoryResponseDto,
+  })
+  @ApiBadRequestResponse({
+    type: Error400ResponseDto
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+    type: Error401ResponseDto
   })
   create(@Body() createCategoryDto: CreateCategoryDto) {
     return this.categoriesService.create(createCategoryDto);
@@ -29,6 +39,9 @@ export class CategoriesController {
   @ApiOkResponse({
     description: 'get categories',
     type: PaginatedCategoryResponseDto,
+  })
+  @ApiNotFoundResponse({
+    type: Error404ResponseDto
   })
   findAll(@Query() query: FiltersCategoryDto) {
     return this.categoriesService.findAll(query);
@@ -50,6 +63,16 @@ export class CategoriesController {
     description: 'updated category',
     type: CategoryResponseDto,
   })
+  @ApiBadRequestResponse({
+    type: Error400ResponseDto
+  })
+  @ApiNotFoundResponse({
+    type: Error404ResponseDto
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+    type: Error401ResponseDto
+  })
   update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
     return this.categoriesService.update(+id, updateCategoryDto);
   }
@@ -57,6 +80,13 @@ export class CategoriesController {
   @Delete(':id')
   @HttpCode(204)
   @ApiBearerAuth()
+  @ApiNotFoundResponse({
+    type: Error404ResponseDto
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+    type: Error401ResponseDto
+  })
   @UseGuards(AuthGuard('jwt'))
   remove(@Param('id') id: string) {
     return this.categoriesService.remove(+id);
