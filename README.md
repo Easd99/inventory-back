@@ -70,8 +70,9 @@ Si prefieres usar Docker, puedes levantar el proyecto y la base de datos con un 
 1. Clonar el repositorio y entrar a la carpeta:
    git clone https://github.com/Easd99/inventory-back
    
+2. Ejecutar "cd inventory-back"
 
-2. cd inventory-back 
+3. Ejecutar "git switch feature/extended"
 
 3. Asegurate de tener el archivo ".docker.env"
 
