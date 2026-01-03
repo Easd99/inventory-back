@@ -77,7 +77,7 @@ Si prefieres usar Docker, puedes levantar el proyecto y la base de datos con un 
 3. Asegurate de tener el archivo ".docker.env"
 
 4. Levantar los contenedores:
-   docker-compose up -d
+   docker-compose --env-file .docker.env up
 
 DOCUMENTACION (SWAGGER)
 --------------------------------------------------
