@@ -58,8 +58,9 @@ Sigue estos pasos para configurar y ejecutar el proyecto:
    DB_USERNAME=
    DB_PASSWORD=
    JWT_SECRET=
-
-5. Ejecutar el proyecto (Modo Produccion):
+5. Hacer build del proyecto
+   npm run build
+6. Ejecutar el proyecto (Modo Produccion):
    npm run start:prod
 
 DOCUMENTACION (SWAGGER)
