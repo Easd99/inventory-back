@@ -6,6 +6,7 @@ import { getDataSourceByName, addTransactionalDataSource } from 'typeorm-transac
 import { AppDataSource } from './config/data-source';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -28,7 +29,7 @@ import { AuthModule } from './auth/auth.module';
       return addTransactionalDataSource(new DataSource(option));
     },
   }),
-    UsersModule, AuthModule],
+    UsersModule, AuthModule, CategoriesModule],
   controllers: [],
   providers: [],
 })
