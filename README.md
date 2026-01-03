@@ -62,6 +62,22 @@ Sigue estos pasos para configurar y ejecutar el proyecto:
 5. Ejecutar el proyecto (Modo Produccion):
    npm run start:prod
 
+EJECUCION CON DOCKER COMPOSE
+--------------------------------------------------
+
+Si prefieres usar Docker, puedes levantar el proyecto y la base de datos con un solo comando.
+
+1. Clonar el repositorio y entrar a la carpeta:
+   git clone https://github.com/Easd99/inventory-back
+   
+
+2. cd inventory-back 
+
+3. Asegurate de tener el archivo ".docker.env"
+
+4. Levantar los contenedores:
+   docker-compose up -d
+
 DOCUMENTACION (SWAGGER)
 --------------------------------------------------
 
