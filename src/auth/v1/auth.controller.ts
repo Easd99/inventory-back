@@ -1,11 +1,12 @@
-import { Controller, Post, Body, UnauthorizedException, Get, UseGuards, Request } from '@nestjs/common';
+import { Controller, Post, Body, UnauthorizedException, Get, UseGuards, Request, HttpStatus, HttpCode } from '@nestjs/common';
 import { AuthService } from '../auth.service';
 import { LoginDto } from '../dto/login.dto';
 import { RegisterDto } from '../dto/register.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiBody, ApiBodyOptions, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiBodyOptions, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { UserResponseDto } from '../dto/user-response.dto';
 import { LoginResponseDto } from '../dto/login-response.dto';
+import { Error401ResponseDto } from 'src/common/dto/error-401-response.dto copy';
 
 @Controller({ path: 'auth', version: '1' })
 export class AuthController {
@@ -26,10 +27,11 @@ export class AuthController {
     }
 
     @Post('register')
-    @ApiOkResponse({
+    @ApiCreatedResponse({
         description: 'created user',
         type: UserResponseDto,
     })
+    @HttpCode(201)
     async register(@Body() input: RegisterDto) {
         return this.authService.register(input);
     }
@@ -40,6 +42,10 @@ export class AuthController {
     @ApiOkResponse({
         description: 'profile info',
         type: UserResponseDto,
+    })
+    @ApiUnauthorizedResponse({
+        description: 'Unauthorized',
+        type: Error401ResponseDto
     })
     async getProfile(
         @Request() req
