@@ -5,6 +5,7 @@ import { Category } from './entities/category.entity';
 import { ILike, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Transactional } from 'typeorm-transactional';
+import { FiltersCategoryDto } from './dto/filters-category.dto';
 
 @Injectable()
 export class CategoriesService {
@@ -30,13 +31,25 @@ export class CategoriesService {
     });
   }
 
-  async findAll() {
+  async findAll(input: FiltersCategoryDto) {
     const queryBuilder = this.categoryRepository.createQueryBuilder('category');
     queryBuilder.orderBy({
       'category.id': 'ASC',
     });
-    const categories = await queryBuilder.getMany();
-    return categories;
+
+    if (input.search) {
+      queryBuilder.andWhere('category.name ILIKE :search OR category.description ILIKE :search', { search: `%${input.search}%` });
+    }
+
+    queryBuilder.loadRelationCountAndMap('category.productsCount', 'category.products');
+    queryBuilder.skip(input.offset).take(input.limit);
+    const [categories, total] = await queryBuilder.getManyAndCount();
+    return {
+      data: categories,
+      total,
+      limit: input.limit,
+      offset: input.offset,
+    };
   }
 
   async findOne(id: number) {

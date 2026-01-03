@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, UseGuards, Put, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, UseGuards, Put, NotFoundException, Query } from '@nestjs/common';
 import { CategoriesService } from '../categories.service';
 import { CreateCategoryDto } from '../dto/create-category.dto';
 import { UpdateCategoryDto } from '../dto/update-category.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { FiltersCategoryDto } from '../dto/filters-category.dto';
 
 @Controller({ path: 'categories', version: '1' })
 export class CategoriesController {
@@ -17,8 +18,8 @@ export class CategoriesController {
   }
 
   @Get()
-  findAll() {
-    return this.categoriesService.findAll();
+  findAll(@Query() query: FiltersCategoryDto) {
+    return this.categoriesService.findAll(query);
   }
 
   @Get(':id')
